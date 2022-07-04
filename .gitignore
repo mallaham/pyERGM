@@ -1,3 +1,12 @@
 .DS_Store
 .csv
 .txt
+**/__pycache__/
+__pycache__/
+HEAD
+pyergm/objects
+pyergm/refs
+pyergm/info
+pyergm/hooks
+pyergm/config
+pyergm/description

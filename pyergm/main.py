@@ -1,85 +1,116 @@
-import r_setup as r
-import pandas as pd
-from ergm import pyERGM
-from simulator import Simulator
-from rpy2.robjects import NA_Real
+# TODO:
+# Verify return types in doc-string for network_statistics.py
+# logging and exception handling (update print statements with logger.info)
+# Add timer as a decorator to capture time [x]
+# document all functions
+# check sphinx/or other documentation (shifterator) [for now do it through readme]
+# clean up repo and github
+# write tests
+# Test in jupyter notebook and IDE
+# Release to the lab for testing
+
+import rpy_infterace as rpyInterface
 from data_transformer import DataTransformer
+from simulator import Simulator
+from ergm import pyERGM, ModelDiagnostics
+from network_statistics import NetworkStats
+import pandas as pd
+from rpy2.robjects import NA_Real
 import rpy2.robjects as robjects
 import numpy as np
+import logging
+from helper import timer_func
+logging.basicConfig()
+logging.getLogger().setLevel(logging.INFO)
+
 if __name__ == "__main__":
+       
     ################
     ## Load pacakges
     ################
+    # possibly move this section to be part of renv
     #rpackages = ['statnet', 'ergm','igraph','texreg']
     rpackages = ['statnet', 'ergm','texreg', 'base', 'grDevices'] # removing igraph because it causes issues with ergm native functions
-    renv = r.intializeRenv(mirror=1, r_packages= rpackages)
+    renv = rpyInterface.intializeRenv(mirror=1, r_packages= rpackages)
     installed_packages = renv.setup_renv()
 
     ################
     ## Load data
     ################
-    # use index_col to specify which columns to use as an index
-    data = pd.read_csv("/Users/Mowafak/Documents/NU_research/SONIC/pyERGM/data/project_red/adj_matrix.csv",index_col=0)#hera_c4_sna_ergm_demo.csv")
-    # pandas to edgelist
-    #  G=nx.from_pandas_edgelist(graph_df,'source','target',create_using=nx.DiGraph())
-    # pulling adjacency matrix
-
-    #adjacency matrix to edgelist 
-    # edgelist = data.stack().reset_index().rename(columns={"level_0":"Source", "level_1": "Target", 0:"edge"})
-    # edgelist = edgelist[edgelist['Source'].astype(str)!=edgelist['Target'].astype(str)] # to remove self-loops (1-->1)
-    # edgelist = edgelist[edgelist['edge']==1].drop(columns='edge').reset_index(drop=True) # keeping all rows with edge equals to 1 then dropping the column
-    # print(edgelist)
-
-    ################
+    data = pd.read_csv("/Users/Mowafak/Documents/NU_research/SONIC/pyERGM/data/project_gates/GA_female_network_q44_free_time_together.csv")
+    attributes = pd.read_csv("/Users/Mowafak/Documents/NU_research/SONIC/pyERGM/data/project_gates/attributes datafile.csv")
+    # select rows that only have ties
+    data = data.query("free_time==1")
+    # build a nother model to include q122 (education), q118 (have a child), and q117 (marital status)
+    survey_data = pd.merge(data,attributes, how='left',left_on='id1',right_on='id')
+   
+    ####################
     ## Data processing
-    ################
-    dt = DataTransformer()
-    team = dt.rdf_to_list(dt.to_rdf(pd.read_csv("data/project_red/hera_c4_sna_ergm_demo.csv",usecols=["hera_mag"])), "hera_mag")
-    r_buyInFromYouEdgelist = dt.to_rdf(data)
+    ####################
+    dt = DataTransformer(renv)
+    rdf_fromEdgeList = dt.to_rdf(data)
+    education = dt.rdf_to_list(dt.to_rdf(survey_data['q122'].to_frame(name="education")), "education")
+    have_child = dt.rdf_to_list(dt.to_rdf(survey_data['q118'].to_frame(name="have_child")), "have_child")
+    marital_status = dt.rdf_to_list(dt.to_rdf(survey_data['q117'].to_frame(name="marital_status")), "marital_status")
 
-    ###
-    # maybe refactor the following two lines to be a single python function to take either adjacency matrix or edgelist and returns a matrixs
-    asmatrix = renv.load_robject('as.network.matrix')
-    buyIn = asmatrix(r_buyInFromYouEdgelist, **{"matrix.type":"adjacency"}) # unpacks parameters from python to R in this case user can specify either an adjacency or edgelist
-    ###
+    ####################
+    ## Consutring network
+    ####################
+    time_together = dt.edgelist_to_matrix(rdf_fromEdgeList)
+    # essential to construct a covariance matrix for the attribute you want to include as a covariate
+    # TODO: ask what happens if we have more than a single covariate? Do we generate a matrix per covariate?
+    education_covMatrix = dt.cov_matrix(survey_data, 'id1','id2','q122', 1309,1309)
     
-    set_vertex_att = renv.load_robject('set.vertex.attribute')
-    buyIn = set_vertex_att(buyIn, "hera_mag", team) 
-
     ################################
     ## Calculate network metrics
     ################################
-    # load network functions
-    summary = renv.load_robject('summary')(buyIn)
-    network_size = renv.load_robject('network.size')(buyIn)
-    betweeness = renv.load_robject('betweenness')(buyIn)
-    isolates = renv.load_robject('isolates')(buyIn)
-
+    # ns = NetworkStats(renv)
+    # summary = ns.summary(time_together)
+    # print(summary)
+    # network_size = ns.network_size(time_together)
+    # print(network_size)
+    # betweeness = ns.betweeness(time_together)
+    # print(betweeness)
+    # isolates = ns.isolates(time_together)
+    # print(isolates)
+    
     ################################
     ## Building ERGM
     ################################
-    formula = "buyIn ~ edges + mutual + nodemix('hera_mag',base=2)" #fix formual
-    vars = {"buyIn": buyIn, "hera_mag":team}
+    # list of ergm terms
+    # https://statnet.org/nme/d2-ergmterms.html
+    # Note: edgecov require constructing a matrix
+    # TODO: check all vars are in formula and vice versa
+    formula = "time_together ~ edges + mutual + edgecov(education)" # this model has converged
+    vars = {"time_together": time_together, "education": education_covMatrix}
     
     # model definition and parameters
     ergm = pyERGM(installed_packages['ergm'], formula, vars)
-    params = dict({"formula":ergm.formula}) # make sure to include = for parameters that require = vs parameters that can be upacked such as formula
-    model = ergm.ergm(**params)
+    params = dict({"formula": ergm.formula}) # make sure to include = for parameters that require = vs parameters that can be upacked such as formula
+    model = ergm.fit_model(params)
     summary = ergm.summary(model)
-    
-    ################################
-    ## Goodness of fit analysis 
-    ################################
-    filename, mcmc_results = ergm.mcmc_summary(model)
-
-    simulate_parms = {"burnin=":100000, "interval=":100000, "verbose=":"T", "seed=":10}
-    sim = Simulator(model, simulate_parms)
-    sim_results = sim.simulate()
-
-    gof_params = dict({"verbose=":"T","burnin=":1e+5,"interval=":1e+5})
-    gof = ergm.gof(model, gof_params, n=100)
-    # print(filename)
     print(summary)
-    # print(gof)
-    print("======")
-    print(len(sim.get_triangles()))
+
+    #####################
+    ## Model Diagnositics
+    #####################
+    ergm_diagnostics = ModelDiagnostics(renv)
+    
+    # MCMC
+    filename, mcmc_results = ergm_diagnostics.run_mcmc(model)
+    print(filename)
+
+    ## Goodness of fit
+    gof_params = dict({"verbose=":"T","burnin=":1e+5,"interval=":1e+5})
+    gof = ergm_diagnostics.gof(model, gof_params, n=100)
+    print(gof)
+    
+    ###############
+    ## Simulations
+    ###############
+    sim_parms = {"burnin=":100000, "interval=":100000, "verbose=":"T", "seed=":10}
+    simulator = Simulator(model, sim_parms)
+    sim_results = simulator.simulate()
+    print(len(simulator.get_triangles()))
+
+    
