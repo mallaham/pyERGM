@@ -64,7 +64,7 @@ class ModelDiagnostics:
         self._renv = renv
 
     @timer_func
-    def run_mcmc(self, model, to_pdf = True, pdf_path = "./output/"):
+    def run_mcmc(self, model, to_pdf = True, pdf_path = "./"):
         """function to run MCMC simulations and generate MCMC diagnostic report
 
         Args:
@@ -84,10 +84,11 @@ class ModelDiagnostics:
         self._renv.load_robject('pdf')(filepath)
         mcmc_results = self._renv.load_robject('mcmc.diagnostics')(model)
         self._renv.load_robject('dev.off')()
+        logging.info("MCMC diagnostic report can be accessed in the following path: {}".format(filepath))
         return filepath, mcmc_results
     
     @timer_func
-    def gof (self, model, params, path= "./output/", n=200):
+    def gof (self, model, params, path= "./", n=200):
         """ERGM goodness of fit test and report
 
         Args:
@@ -109,4 +110,5 @@ class ModelDiagnostics:
         imported_pkg['grDevices'].png(filepath)
         self._renv.load_robject('plot')(gof)
         imported_pkg['grDevices'].dev_off()
+        logging.info("Goodness of fit report can be accessed in the following path: {}".format(filepath))
         return gof
