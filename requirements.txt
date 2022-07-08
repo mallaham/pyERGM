@@ -11,7 +11,7 @@ mkl-random==1.2.2
 mkl-service==2.4.0
 munkres==1.1.4
 numexpr==2.8.1
-numpy==1.21.2
+numpy
 packaging==21.3
 pandas==1.4.1
 Pillow==9.0.1
