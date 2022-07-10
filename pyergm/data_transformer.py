@@ -1,3 +1,4 @@
+from mimetypes import init
 from rpy2.robjects.conversion import localconverter 
 from rpy2.robjects import pandas2ri
 import rpy2.robjects as robjects
@@ -80,15 +81,16 @@ class DataTransformer:
         asmatrix = self._renv.load_robject('as.network.matrix')
         return asmatrix(rdf, **{"matrix.type":"adjacency"})
 
-    def cov_matrix(self, data, from_col, to_col, cov_col, nrows, ncols, init_val=0.0):
-        """construct a covariance matrix based on a network attribute passed in cov_col
+    def cov_matrix(self, data, from_col, to_col, nrows, ncols, init_val=0.0, cov_col=None):
+        """construct a covariance matrix based on a network attribute passed in cov_col.
+        If cov_col is not passed, an initialzed matrix with values init_val will be returned. 
 
         Args:
             data (DataFrame): pandas DataFrame containing network ties in the data. Usually in the format senderId, receiverId,
              attribute(1/0)
             from_col (string): column name that represents the source of the nomination (sender)
             to_col (string): column name that represents the targe of the nomination (receiver)
-            cov_col (string): column to construct the covariance matrix on
+            cov_col (string, optional): column to construct the covariance matrix on
             nrows (int): number of rows in the covariance matrix
             ncols (int): number of columns in the covariance matrix
             init_val (float, optional): values to initialize the matrix on. It can be either a zero matrix or of type NA_Real. 
@@ -101,6 +103,12 @@ class DataTransformer:
         logging.info("Generating covariance matrix for: {}".format(cov_col))
         base = self._renv.package_importer(['base'])['base']
         matrix = base.matrix(init_val, nrows, ncols)
+        
+        # used to initialize a matrix
+        if not cov_col:
+            logging.info("No covariance column was passed. Returning a matrix with populated values of {}".format(str(init_val)))
+            return matrix
+
         for index, row in data.iterrows(): # make sure all columns are empty of strings or throw an error/execption
             try:
                 s_idx = int(row[from_col].replace("G",""))
@@ -118,13 +126,13 @@ class DataTransformer:
             print("covariance matrix has dimension: ", matrix_dim)
         return matrix
 
-    def set_vertex_attribute(self,network, attribute_name, attribute_values):
+    def set_vertex_attribute(self, network, attribute_name, attribute_values):
         """function to set vertix as an attribute
 
         Args:
             network (R-Matrix): matrix representation of the adjacency matrix or edgelist in R
-            attribute_name (string): name of the attribute
-            attribute_values (R-List): values associated with the attribute in an R-List format
+            attribute_name (string or list of strings): name of the attribute
+            attribute_values (R-List or list of R-Lists): values associated with the attribute in an R-List format
 
         Returns:
             R-Object: network with attribute_name set as network attribute
@@ -136,6 +144,17 @@ class DataTransformer:
         # buyIn = set_vertex_att(buyIn, "have_child", have_child) # Indicator variable for department leader
         # buyIn = set_vertex_att(buyIn, "marital_status",marital_status) # Years tenure
         ###
+        
+        if (type(attribute_name)==list and type (attribute_name)==list):
+            if len(attribute_name) != len(attribute_values):
+                logging.error("Length of attribute names and values do not match. Exiting...")
+                exit(1)
+            logging.info("A list of attribute names and values was passed...")
+            for index, _ in enumerate(attribute_name):
+                logging.info("Setting vertex attribute to {}...".format(attribute_name[index]))
+                set_vertex_r_func = self._renv.load_robject('set.vertex.attribute')
+                network = set_vertex_r_func(network, attribute_name[index], attribute_values[index])
+            return network
         
         logging.info("Setting vertex attribute to {}...".format(attribute_name))
         set_vertex_r_func = self._renv.load_robject('set.vertex.attribute')

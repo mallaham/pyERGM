@@ -1,5 +1,3 @@
-#TODO: check if modelObject can be removed from the init params.
-
 from rpy2.robjects import Formula
 from rpy_infterace import intializeRenv
 from helper import timer_func
@@ -100,7 +98,6 @@ class ModelDiagnostics:
         Returns:
             R-Object: goodness of fit R object
         """
-        #TODO: check if params has control as a key otherwise assign the value of n to control
         logging.info("Running goodness of fit test...")
         filepath = path + "gof_report.png"
         gof_params =  params
