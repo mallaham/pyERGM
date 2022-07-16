@@ -3,6 +3,7 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects.vectors import StrVector
 import rpy2.robjects.packages as rpackages
 from rpy2.robjects import Formula
+from mimetypes import init
 import logging
 
 class intializeRenv:
