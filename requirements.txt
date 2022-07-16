@@ -13,7 +13,7 @@ munkres==1.1.4
 numexpr==2.8.1
 numpy
 packaging==21.3
-pandas==1.4.1
+pandas
 Pillow==9.0.1
 pip==21.2.4
 pycparser==2.21
