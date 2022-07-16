@@ -1,4 +1,4 @@
-from rpy_interface import intializeRenv
+from pyergm.rpy_interface import intializeRenv
 import rpy2.robjects as robjects
 from rpy2.robjects import Formula
 import logging 

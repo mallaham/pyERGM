@@ -1,4 +1,3 @@
-from rpy_interface import intializeRenv
 import logging 
 
 class NetworkStats:
