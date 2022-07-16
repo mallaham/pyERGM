@@ -1,6 +1,6 @@
 from rpy2.robjects import Formula
-from pyergm.rpy_interface import intializeRenv
-from pyergm.helper import timer_func
+from rpy_interface import intializeRenv
+from helper import timer_func
 import logging
 
 class pyERGM:
