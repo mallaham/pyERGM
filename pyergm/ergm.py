@@ -1,5 +1,5 @@
 from rpy2.robjects import Formula
-from rpy_infterace import intializeRenv
+from rpy_interface import intializeRenv
 from helper import timer_func
 import logging
 

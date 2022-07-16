@@ -1,4 +1,4 @@
-import rpy_infterace as rpyInterface
+import rpy_interface as rpyInterface
 from data_transformer import DataTransformer
 from simulator import Simulator
 from ergm import pyERGM, ModelDiagnostics

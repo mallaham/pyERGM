@@ -1,4 +1,4 @@
-import rpy_infterace as rpyInterface
+import rpy_interface as rpyInterface
 from network_statistics import NetworkStats
 from ergm import pyERGM, ModelDiagnostics
 import pandas as pd
