@@ -7,13 +7,14 @@ class Simulator:
     """Simulator simulates networks and calcuate statistics on simulated networks for comparison with observed networks
     """
 
-    def __init__(self, model, params):
+    def __init__(self, model, params, seed=340):
         # TODO: allow users to set seed 
         # R: set.seed(314159)
         self._model = model
         self._params = params
         self._renv = intializeRenv()
         self._sims = None
+        self._seed = seed
 
     def simulate(self, n=1000):
         """function to simulate networks
@@ -25,7 +26,8 @@ class Simulator:
             R-Object: an object referencing simulated networks
         """
         # TODO check if self._params is empty what would ** return.
-        logging.info("Simulating {} networks...".format(n))
+        logging.info("Simulating {} networks with seed vale {}...".format(n, self._seed))
+        self._renv.load_robject('set.seed')(self._seed)
         self._sims = self._renv.load_robject('simulate')(self._model, nsim=n, **self._params)
         return self._sims
 

@@ -1,6 +1,6 @@
 from rpy2.robjects import Formula
-from rpy_interface import intializeRenv
-from helper import timer_func
+from .rpy_interface import intializeRenv
+from .helper import timer_func
 import pandas as pd
 import rpy2.robjects as robjects
 import logging
