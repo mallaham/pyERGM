@@ -34,8 +34,9 @@ class pyERGM:
         """
         logging.info("Model summary before fitting ERGM...")
         summary=robjects.r['as.data.frame'](self._renv.load_robject('summary')(self.formula))
-        logging.info(robjects.pandas2ri.rpy2py(summary))
-        return summary
+        summary_df = robjects.pandas2ri.rpy2py(summary)
+        logging.info(summary_df)
+        return summary_df
 
     @timer_func
     def fit_model(self, params):
