@@ -1,7 +1,10 @@
 from rpy2.robjects import Formula
-from .rpy_interface import intializeRenv
-from .helper import timer_func
+from rpy_interface import intializeRenv
+from helper import timer_func
+import pandas as pd
+import rpy2.robjects as robjects
 import logging
+import matplotlib.pyplot as plt
 
 class pyERGM:
     """python interface to statnet ERGM model
@@ -21,7 +24,19 @@ class pyERGM:
         # populate values used in formula as env variables
         for key, val in vars.items():
             self.ergm_params[key] = val
-    
+        self.model_descriptive_summary(self.formula)
+        
+    def model_descriptive_summary(self, formula):
+        """describing model summary before fitting
+
+        Args:
+            formula (R-object): ERGM model equation which consists of model terms that will be used to fit the ERGM model.
+        """
+        logging.info("Model summary before fitting ERGM...")
+        summary=robjects.r['as.data.frame'](self._renv.load_robject('summary')(self.formula))
+        logging.info(robjects.pandas2ri.rpy2py(summary))
+        return
+
     @timer_func
     def fit_model(self, params):
         """Fitting ERGM model over params
@@ -37,7 +52,7 @@ class pyERGM:
 
     @timer_func
     def summary(self, model):
-        """Summarize ERGM model
+        """ERGM model after fitting
 
         Args:
             model (R object): ERGM model object
@@ -45,7 +60,7 @@ class pyERGM:
         Returns:
             R-Object: summary statistics of the ERGM model
         """
-        logging.info("Summarizing model...")
+        logging.info("ERGM model summary...")
         texreg = self._renv.package_importer(['texreg'])['texreg']
         model_summary = texreg.screenreg(self._renv.load_robject('list')(model))
         return model_summary
@@ -54,12 +69,13 @@ class pyERGM:
 class ModelDiagnostics:
     """ModelDiagnostics class provides auxiliary functions for model diagnostics
     """
-    def __init__(self, renv):
+    def __init__(self, renv, seed=321):
         """
         Args:
             renv (R Object): R environment object
         """
         self._renv = renv
+        self._seed = seed
 
     @timer_func
     def run_mcmc(self, model, to_pdf = True, pdf_path = "./"):
@@ -74,7 +90,8 @@ class ModelDiagnostics:
             string: MCMC diagnostics
             string: path to where diagnostic file is written to
         """
-        logging.info("Running MCMC diagnostics...")
+        logging.info("Running MCMC diagnostics with seed {}...".format(self._seed))
+        self._renv.load_robject('set.seed')(self._seed)
         if not to_pdf:
             return self._renv.load_robject('mcmc.diagnostics')(model), None
 
