@@ -4,7 +4,6 @@ from .helper import timer_func
 import pandas as pd
 import rpy2.robjects as robjects
 import logging
-import matplotlib.pyplot as plt
 
 class pyERGM:
     """python interface to statnet ERGM model
