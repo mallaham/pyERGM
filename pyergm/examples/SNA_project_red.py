@@ -1,11 +1,16 @@
-import rpy_interface as rpyInterface
-from network_statistics import NetworkStats
-from ergm import pyERGM, ModelDiagnostics
+# local testing
+# import rpy_interface as rpyInterface
+# from network_statistics import NetworkStats
+# from ergm import pyERGM, ModelDiagnostics
+# from simulator import Simulator
+# from data_transformer import DataTransformer
+from pyergm import rpy_interface as rpyInterface
+from pyergm.network_statistics import NetworkStats
+from pyergm.ergm import pyERGM, ModelDiagnostics
+from pyergm.simulator import Simulator
+from pyergm.data_transformer import DataTransformer
 import pandas as pd
-from ergm import pyERGM
-from simulator import Simulator
 from rpy2.robjects import NA_Real
-from data_transformer import DataTransformer
 import logging 
 logging.basicConfig()
 logging.getLogger().setLevel(logging.INFO)
