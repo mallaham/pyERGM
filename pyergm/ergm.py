@@ -1,23 +1,28 @@
 from rpy2.robjects import Formula
 from .rpy_interface import intializeRenv
 from .helper import timer_func
+# from rpy_interface import intializeRenv
+# from helper import timer_func
 import pandas as pd
 import rpy2.robjects as robjects
 import logging
+
 
 class pyERGM:
     """python interface to statnet ERGM model
     """
 
-    def __init__(self, modelObject, model_def, vars):
+    def __init__(self, modelObject, model_def, vars, constraints=None):
         """
         Args:
             modelObject (R object): ERGM model object in R
             model_def (string): ERGM model definition in a formual per R implementation DV ~ IV1 + IV2 + IV3 etc.
             vars (dict): keys are terms defined in model_def and values are their correspodning objects
+            constraints (string): ergm constraints to include and consider as part of modeling
         """
         self.model = modelObject.ergm
         self.formula = Formula(model_def)
+        self.constraints = Formula(constraints) if constraints else None
         self.ergm_params = self.formula.environment
         self._renv = intializeRenv()
         # populate values used in formula as env variables
@@ -55,14 +60,14 @@ class pyERGM:
         """ERGM model after fitting
 
         Args:
-            model (R object): ERGM model object
+            model (R object): ERGM model object or a list of models to compare
 
         Returns:
             R-Object: summary statistics of the ERGM model
         """
         logging.info("ERGM model summary...")
         texreg = self._renv.package_importer(['texreg'])['texreg']
-        model_summary = texreg.screenreg(self._renv.load_robject('list')(model))
+        model_summary =  texreg.screenreg(model) if type(model)==list else texreg.screenreg(self._renv.load_robject('list')(model))
         return model_summary
 
 
