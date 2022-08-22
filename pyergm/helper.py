@@ -1,5 +1,11 @@
 from time import time
 import logging 
+import os
+import sys
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
 def timer_func(func):
     """Decorator function to calcuate time it took to execute a function
