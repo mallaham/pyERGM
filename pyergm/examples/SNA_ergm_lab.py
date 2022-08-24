@@ -20,8 +20,6 @@ import logging
 # or 
 # logging.basicConfig(filename="log.txt", level=logging.DEBUG)
 ######
-logging.basicConfig()
-logging.getLogger().setLevel(logging.INFO)
 
 if __name__ == "__main__":
     
@@ -81,8 +79,8 @@ if __name__ == "__main__":
     vars = {"buyIn": buyIn, "hundred_messages": cov_matrix, "hundreds_messages": cov_matrix}
     
     # model definition and parameters
-    ergm = pyERGM(installed_packages['ergm'], formula, vars)
-    params = dict({"formula":ergm.formula, "constraints=":"~bd(maxout=5)"}) # make sure to include = for parameters that require = vs parameters that can be upacked such as formula
+    ergm = pyERGM(installed_packages['ergm'], formula, vars, constraints="~bd(maxout=5)")
+    params = dict({"formula":ergm.formula, "constraints":ergm.constraints}) # make sure to include = for parameters that require = vs parameters that can be upacked such as formula
     model = ergm.fit_model(params)
     summary = ergm.summary(model)
     print(summary)
@@ -108,3 +106,4 @@ if __name__ == "__main__":
     simulator = Simulator(model, sim_parms)
     sim_results = simulator.simulate()
     print(len(simulator.get_triangles()))
+
