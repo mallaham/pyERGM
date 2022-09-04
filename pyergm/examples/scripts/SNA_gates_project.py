@@ -35,9 +35,9 @@ if __name__ == "__main__":
     attributes = pd.read_csv("/Users/Mowafak/Documents/NU_research/SONIC/pyERGM/data/project_gates/attributes datafile.csv")
     # select rows that only have ties
     data = data.query("free_time==1")
-    # build a nother model to include q122 (education), q118 (have a child), and q117 (marital status)
+    # build another model to include q122 (education), q118 (have a child), and q117 (marital status)
     survey_data = pd.merge(data,attributes, how='left',left_on='id1',right_on='id')
-   
+
     ####################
     ## Data processing
     ####################
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     time_together = dt.edgelist_to_matrix(rdf_fromEdgeList)
     # essential to construct a covariance matrix for the attribute you want to include as a covariate
     # TODO: ask what happens if we have more than a single covariate? Do we generate a matrix per covariate?
-    education_covMatrix = dt.cov_matrix(survey_data, 'id1','id2','q122', 1309,1309)
+    education_covMatrix = dt.cov_matrix(survey_data, 'id1','id2',1309,1309, cov_col='q122')
     
     ################################
     ## Calculate network metrics
