@@ -11,7 +11,6 @@ numpy
 packaging==21.3
 pandas
 Pillow==9.0.1
-pip==21.2.4
 pycparser==2.21
 pyparsing==3.0.4
 python-dateutil==2.8.2
