@@ -38,7 +38,7 @@ In order to use pyERGM, you first must import the library:
 ```python
 from pyERGM import ergm
 ```
-This will allow you to create an instance of pyERGM object to build your model. Please feel free to refer to the `/examples/scripts/` or `/examples/notebooks/` folders for additional details.
+This will allow you to create an instance of pyERGM object to build your model. Please feel free to refer to the `pyergm/examples/scripts/` or `/pyergm/examples/notebooks/` folders for additional details.
 
 
 ## pyERGM output:
@@ -68,7 +68,7 @@ Counting the number of triangles in the simulated networks...
 ### Reports
 pyERGM outputs an MCMC diagnostics pdf report and a png image showing goodness of fit diagnostics to the output directory a user specifies in `run_mcmc()` function (please check function documentation in `ergm.py` for additional details).
 
-You can also view the output of pyERGM in action by checking the sample notebook under `/examples/notebooks` folder.
+You can also view the output of pyERGM in action by checking the sample [notebook](https://github.com/mallaham/pyERGM/blob/master/pyergm/examples/notebooks/pyergm_demo_notebook.ipynb) under `pyergm/examples/notebooks/` folder.
 
 
 ## Sample pyERGM output
