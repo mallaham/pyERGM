@@ -2,6 +2,8 @@
 ---------
 pyERGM is a Python library that allows users to build Exponential Random Graph (ERGM) models in Python. Users can use pyERGM in either a `pacakge` or `dev` mode. Users accessing pyERGM in the `package` mode can install pyERGM from github similar to any other python library (as showin in step 3 of the installation) then use it in their local environment or run it in a Jupyter Notebook. The `dev` mode is for users who have an interest in contributing to pyERGM or modifying any of its existing functions or features. More information on running pyERGM in a `dev` mode will be added soon.
 
+To access some example scripts and notebooks, please refer to `pyergm/examples/` directory. You can also view the output of pyERGM in action by checking the sample [notebook](https://github.com/mallaham/pyERGM/blob/master/pyergm/examples/notebooks/pyergm_demo_notebook.ipynb) under `pyergm/examples/notebooks/` folder.
+
 
 ## Installation
 ----------------
@@ -67,8 +69,6 @@ Counting the number of triangles in the simulated networks...
 
 ### Reports
 pyERGM outputs an MCMC diagnostics pdf report and a png image showing goodness of fit diagnostics to the output directory a user specifies in `run_mcmc()` function (please check function documentation in `ergm.py` for additional details).
-
-You can also view the output of pyERGM in action by checking the sample [notebook](https://github.com/mallaham/pyERGM/blob/master/pyergm/examples/notebooks/pyergm_demo_notebook.ipynb) under `pyergm/examples/notebooks/` folder.
 
 
 ## Sample pyERGM output
