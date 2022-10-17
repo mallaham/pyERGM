@@ -69,7 +69,7 @@ class intializeRenv:
                         dict_o = {"version=":StrVector(version)}
                         print(pname)
                         #v.install_version(StrVector("package={},".format(pname)), StrVector("version={}".format(version)))
-                        v.install_version(pname, **dict_o)
+                        v.install_version(pname, version)
                         logging.info("Successfully installed {} package".format(pname))
                         continue    
                     utils.install_packages(StrVector(pname))
