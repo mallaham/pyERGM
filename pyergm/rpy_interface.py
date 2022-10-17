@@ -66,10 +66,10 @@ class intializeRenv:
                     if "=" in pname:
                         v = importr('devtools')
                         pname, version = pname.split("=")
-                        dict_o = {"package":pname, "version=":StrVector(version)}
+                        dict_o = {"version=":StrVector(version)}
                         print(pname)
                         #v.install_version(StrVector("package={},".format(pname)), StrVector("version={}".format(version)))
-                        v.install_version(**dict_o)
+                        v.install_version(pname, **dict_o)
                         logging.info("Successfully installed {} package".format(pname))
                         continue    
                     utils.install_packages(StrVector(pname))
