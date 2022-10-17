@@ -45,6 +45,8 @@ class intializeRenv:
         rpackages_dict = {}
         for pname in rpackages:
             logging.info("Importing package: {}".format(pname))
+            if "=" in pname:
+                rpackages_dict.update({pname.split("=")[0]: importr(pname.split("=")[0])})
             rpackages_dict.update({pname: importr(pname)})
         return rpackages_dict
 
