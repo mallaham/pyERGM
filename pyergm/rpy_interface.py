@@ -63,6 +63,12 @@ class intializeRenv:
         if len(self.packages) > 0:
             for pname in self.packages:
                 if not rpackages.isinstalled(pname):
+                    if "=" in pname:
+                        v = importr('devtools')
+                        pname, version = pname.split("=")
+                        v.install_packages(StrVector(pname), StrVector("version=".format(version)))
+                        logging.info("Successfully installed {} package".format(pname))
+                        continue    
                     utils.install_packages(StrVector(pname))
                     logging.info("Successfully installed {} package".format(pname))
         return self.packages
